@@ -51,7 +51,6 @@ func (l *LogAnalyser) Analysis() {
 }
 
 func (l *LogAnalyser) setSeek() {
-	fmt.Println(l.myConfig.SeekFile)
 	if !FileExists(l.myConfig.SeekFile) {
 		l.seek = 0
 	} else {
@@ -60,10 +59,8 @@ func (l *LogAnalyser) setSeek() {
 		fileReader := bufio.NewReader(file)
 		seekString, err := fileReader.ReadString('\n')
 		PanicCheck(err)
-		fmt.Println(seekString)
 		l.seek, _ = strconv.Atoi(strings.Replace(seekString, "\n", "", -1))
 	}
-	fmt.Println(l.seek)
 }
 
 func (l *LogAnalyser) initAnalysisResults() {
@@ -111,7 +108,6 @@ func (l *LogAnalyser) initAnalysisResults() {
 }
 
 func (l *LogAnalyser) statistic() {
-	fmt.Println("seek", l.seek)
 	l.saveSeekFile()
 	result := &LogAnalysisResult{Count2xx:0, Count3xx:0, Count4xx:0, Count5xx:0, RequestMaxTime:0,
 		UpstreamConnectMaxTime:0, UpstreamHeaderAvgTime:0, UpstreamResponseMaxTime:0}
@@ -146,7 +142,6 @@ func (l *LogAnalyser) statistic() {
 		result.UpstreamResponseAvgTime = totalUpstreamResponseTime / float64(length)
 	}
 	l.saveResultFile(result)
-	fmt.Println(result)
 }
 
 func (l *LogAnalyser) saveSeekFile() {
@@ -161,7 +156,6 @@ func (l *LogAnalyser) saveResultFile(result *LogAnalysisResult) {
 	PanicCheck(err)
 	defer file.Close()
 	js, _ := json.Marshal(result)
-	fmt.Println(js)
 	file.Write(js)
 }
 
