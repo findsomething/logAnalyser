@@ -24,3 +24,24 @@ go build main.go
 
 ./main --input=thePathToNginxAccessLogFile --outputName=outputFileName --outputPath=/var/tmp/output --mode=spec
 ```
+
+## result
+
+outputFileName content:
+```
+{
+    "update_time":"2017-05-08 15:32:30.246399726 +0800 CST",
+    "2xx_count":8,
+    "3xx_count":0,
+    "4xx_count":0,
+    "5xx_count":2,
+    "request_avg_time":0.5931,
+    "upstream_connect_avg_time":0.0007,
+    "upstream_header_avg_time":0.5931,
+    "upstream_response_avg_time":0.5931,
+    "request_max_time":1.697,
+    "upstream_connect_max_time":0.002,
+    "upstream_header_max_time":1.697,
+    "upstream_response_max_time":1.697
+}
+```
