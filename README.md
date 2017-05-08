@@ -5,7 +5,7 @@ nginx log analyser
 ```
 git clone git@github.com:findsomething/logAnalyser.git
 
-go get github.com/Unknwon/goconfig
+go get github.com/droundy/goopt
 go get github.com/satyrius/gonx
 ```
 
