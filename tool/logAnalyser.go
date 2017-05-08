@@ -15,7 +15,7 @@ import (
 var err error
 
 type LogAnalyser struct {
-	seek            int
+	seek            int64
 	myConfig        *MyConfig
 	logHandler      *LogHandler
 	analysisResults []*LogLineAnalysisResult
@@ -59,7 +59,7 @@ func (l *LogAnalyser) setSeek() {
 		fileReader := bufio.NewReader(file)
 		seekString, err := fileReader.ReadString('\n')
 		PanicCheck(err)
-		l.seek, _ = strconv.Atoi(strings.Replace(seekString, "\n", "", -1))
+		l.seek, _ = strconv.ParseInt(strings.Replace(seekString, "\n", "", -1), 10, 64)
 	}
 }
 
@@ -79,12 +79,15 @@ func (l *LogAnalyser) initAnalysisResults() {
 
 	line := 0
 
+	stats, err := openFile.Stat()
+	PanicCheck(err)
+
 	for {
-		openFile.Seek(int64(l.seek), 0)
+		openFile.Seek(l.seek, 0)
 		lineContent, err := logFileReader.ReadString('\n')
 
 		if err == io.EOF {
-			return
+			break
 		}
 
 		WarnCheck(err, "readline error:")
@@ -93,7 +96,7 @@ func (l *LogAnalyser) initAnalysisResults() {
 			line++
 		}
 
-		l.seek += len(lineContent)
+		l.seek += int64(len(lineContent))
 
 		logLineAnalysisResult, err := l.logHandler.AnalysisLine(lineContent)
 
@@ -102,8 +105,12 @@ func (l *LogAnalyser) initAnalysisResults() {
 		}
 
 		if line >= l.myConfig.ReadLimit {
-			return
+			break
 		}
+	}
+
+	if l.myConfig.Mode == "spec" {
+		l.seek = stats.Size()
 	}
 }
 

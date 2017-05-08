@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"path/filepath"
+	"time"
 )
 
 type MyConfig struct {
@@ -12,18 +13,28 @@ type MyConfig struct {
 	ResultFile string
 	ReadLimit  int
 	Seek       int
-	WorkPath   string
+	OutputPath string
+	Mode       string
 }
 
-func NewConfig(readFile, seekFileName, resultFileName string, readLimit int) *MyConfig {
-	workPath, err := os.Getwd()
-	PanicCheck(err)
+func NewConfig(readFile, outputPath, seekFileName, resultFileName, mode string, readLimit int) *MyConfig {
+	var err error
 
-	seekFile := filepath.Join(workPath, "output", seekFileName)
-	resultFile := filepath.Join(workPath, "output", resultFileName)
+	if outputPath == "" {
+		outputPath, err = os.Getwd()
+		PanicCheck(err)
+		outputPath = filepath.Join("output")
+	}
+
+	if mode == "spec" {
+		seekFileName = fmt.Sprintf("%s.%s", seekFileName, time.Now().Format("2006-01-02"))
+	}
+
+	seekFile := filepath.Join(outputPath, seekFileName)
+	resultFile := filepath.Join(outputPath, resultFileName)
 
 	return &MyConfig{ReadFile:readFile, SeekFile:seekFile,
-		ResultFile:resultFile, ReadLimit:readLimit, WorkPath:workPath}
+		ResultFile:resultFile, ReadLimit:readLimit, OutputPath:outputPath, Mode:mode}
 }
 
 func FileExists(fileName string) bool {
