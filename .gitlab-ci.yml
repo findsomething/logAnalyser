@@ -5,4 +5,6 @@ stages:
 build-my-project:
   stage: build
   script:
-    - pwd
+    - cp `pwd` /go/src/logAnalyser -Rf
+    - cd /go/src/logAnalyser
+    - go build -v
