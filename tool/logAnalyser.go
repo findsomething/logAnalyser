@@ -22,7 +22,8 @@ type LogAnalyser struct {
 }
 
 type LogAnalysisResult struct {
-	UpdatedTime             string `json:"update_time"`
+	UpdatedTime             int64 `json:"update_time"`
+	Count1xx                int `json:"1xx_count"`
 	Count2xx                int `json:"2xx_count"`
 	Count3xx                int `json:"3xx_count"`
 	Count4xx                int `json:"4xx_count"`
@@ -118,7 +119,7 @@ func (l *LogAnalyser) statistic() {
 	l.saveSeekFile()
 	result := &LogAnalysisResult{Count2xx:0, Count3xx:0, Count4xx:0, Count5xx:0, RequestMaxTime:0,
 		UpstreamConnectMaxTime:0, UpstreamHeaderAvgTime:0, UpstreamResponseMaxTime:0}
-	result.UpdatedTime = time.Now().String()
+	result.UpdatedTime = time.Now().Unix()
 
 	var totalRequestTime, totalUpstreamConnectTime, totalUpstreamHeaderTime, totalUpstreamResponseTime float64 = 0, 0,
 		0, 0
@@ -173,6 +174,8 @@ func (r *LogAnalysisResult) getMax(time1, time2 float64) float64 {
 func (r *LogAnalysisResult) addStatus(status int) {
 	flag := status / 100
 	switch flag {
+	case 1 :
+		r.Count1xx++
 	case 2 :
 		r.Count2xx++
 	case 3 :
