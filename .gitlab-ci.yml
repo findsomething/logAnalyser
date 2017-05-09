@@ -1,0 +1,8 @@
+image: golang:latest
+stages:
+  - build
+
+build-my-project:
+  stage: build
+  script:
+    - pwd
