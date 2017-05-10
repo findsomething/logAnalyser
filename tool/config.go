@@ -4,7 +4,6 @@ import (
 	"os"
 	"fmt"
 	"path/filepath"
-	"time"
 )
 
 type MyConfig struct {
@@ -24,10 +23,6 @@ func NewConfig(readFile, outputPath, seekFileName, resultFileName, mode string, 
 		outputPath, err = os.Getwd()
 		PanicCheck(err)
 		outputPath = filepath.Join("output")
-	}
-
-	if mode == "spec" {
-		seekFileName = fmt.Sprintf("%s.%s", seekFileName, time.Now().Format("2006-01-02"))
 	}
 
 	seekFile := filepath.Join(outputPath, seekFileName)

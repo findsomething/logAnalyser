@@ -30,7 +30,8 @@ go build main.go
 outputFileName content:
 ```
 {
-    "update_time":"2017-05-08 15:32:30.246399726 +0800 CST",
+    "update_time":1494385717,
+    "1xx_count":1,
     "2xx_count":8,
     "3xx_count":0,
     "4xx_count":0,

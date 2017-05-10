@@ -8,14 +8,16 @@ import (
 	"time"
 	"math"
 	"encoding/json"
-	"strconv"
+	"reflect"
 	"strings"
+	"strconv"
 )
 
 var err error
 
 type LogAnalyser struct {
 	seek            int64
+	iNode           uint64
 	myConfig        *MyConfig
 	logHandler      *LogHandler
 	analysisResults []*LogLineAnalysisResult
@@ -60,7 +62,12 @@ func (l *LogAnalyser) setSeek() {
 		fileReader := bufio.NewReader(file)
 		seekString, err := fileReader.ReadString('\n')
 		PanicCheck(err)
-		l.seek, _ = strconv.ParseInt(strings.Replace(seekString, "\n", "", -1), 10, 64)
+		seek := strings.Split(strings.Replace(seekString, "\n", "", -1), " ");
+		if len(seek) != 2 {
+			PanicCheck(fmt.Errorf("unformat seek file: %s", "unmatch the value"))
+		}
+		l.seek, _ = strconv.ParseInt(seek[0], 10, 64)
+		l.iNode, _ = strconv.ParseUint(seek[1], 10, 64)
 	}
 }
 
@@ -82,6 +89,11 @@ func (l *LogAnalyser) initAnalysisResults() {
 
 	stats, err := openFile.Stat()
 	PanicCheck(err)
+	iNode := reflect.ValueOf(stats.Sys()).Elem().FieldByName("Ino").Uint()
+	if l.iNode != iNode {
+		l.seek = 0
+		l.iNode = iNode
+	}
 
 	for {
 		openFile.Seek(l.seek, 0)
@@ -156,7 +168,7 @@ func (l *LogAnalyser) saveSeekFile() {
 	file, err := os.OpenFile(l.myConfig.SeekFile, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644)
 	PanicCheck(err)
 	defer file.Close()
-	file.WriteString(fmt.Sprintf("%d\n", l.seek))
+	file.WriteString(fmt.Sprintf("%d %d\n", l.seek, l.iNode))
 }
 
 func (l *LogAnalyser) saveResultFile(result *LogAnalysisResult) {
