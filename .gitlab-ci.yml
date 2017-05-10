@@ -1,0 +1,21 @@
+image: golang:latest
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+  - echo $CI_COMMIT_TAG
+  - cp `pwd` /go/src/logAnalyser -Rf
+  - cd /go/src/logAnalyser
+  - go get github.com/droundy/goopt
+  - go get github.com/satyrius/gonx
+  - go build -v
+  - curl -O http://download-devtest.codeages.net/qshell-v2.0.6/qshell_linux_amd64
+  - mv qshell_linux_amd64 qshell
+  - chmod a+x qshell
+  - ./qshell -m account $QINIU_ACCESS_KEY $QIUNIU_SECRET_KEY
+  - ./qshell -m fput $QINIU_BUCKET nginx-log-analyser-${CI_COMMIT_TAG} ./logAnalyser true
+  only:
+  - tags
+
