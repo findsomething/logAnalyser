@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"strings"
 	"strconv"
+	"io/ioutil"
 )
 
 var err error
@@ -131,6 +132,7 @@ func (l *LogAnalyser) statistic() {
 	l.saveSeekFile()
 	result := &LogAnalysisResult{Count2xx:0, Count3xx:0, Count4xx:0, Count5xx:0, RequestMaxTime:0,
 		UpstreamConnectMaxTime:0, UpstreamHeaderAvgTime:0, UpstreamResponseMaxTime:0}
+	l.initFromResultFile(result)
 	result.UpdatedTime = time.Now().Unix()
 
 	var totalRequestTime, totalUpstreamConnectTime, totalUpstreamHeaderTime, totalUpstreamResponseTime float64 = 0, 0,
@@ -177,6 +179,19 @@ func (l *LogAnalyser) saveResultFile(result *LogAnalysisResult) {
 	defer file.Close()
 	js, _ := json.Marshal(result)
 	file.Write(js)
+}
+
+func (l *LogAnalyser) initFromResultFile(result *LogAnalysisResult) {
+	file, err := os.OpenFile(l.myConfig.ResultFile, os.O_RDONLY, 0664)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	fd, err := ioutil.ReadAll(file)
+	err = json.Unmarshal(fd, &result)
+	if err != nil {
+		return
+	}
 }
 
 func (r *LogAnalysisResult) getMax(time1, time2 float64) float64 {
