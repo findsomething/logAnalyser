@@ -132,7 +132,10 @@ func (l *LogAnalyser) statistic() {
 	l.saveSeekFile()
 	result := &LogAnalysisResult{Count2xx:0, Count3xx:0, Count4xx:0, Count5xx:0, RequestMaxTime:0,
 		UpstreamConnectMaxTime:0, UpstreamHeaderAvgTime:0, UpstreamResponseMaxTime:0}
-	l.initFromResultFile(result)
+	if l.myConfig.Mode == "spec" {
+		l.inheritFromResultFile(result)
+	}
+
 	result.UpdatedTime = time.Now().Unix()
 
 	var totalRequestTime, totalUpstreamConnectTime, totalUpstreamHeaderTime, totalUpstreamResponseTime float64 = 0, 0,
@@ -181,7 +184,7 @@ func (l *LogAnalyser) saveResultFile(result *LogAnalysisResult) {
 	file.Write(js)
 }
 
-func (l *LogAnalyser) initFromResultFile(result *LogAnalysisResult) {
+func (l *LogAnalyser) inheritFromResultFile(result *LogAnalysisResult) {
 	file, err := os.OpenFile(l.myConfig.ResultFile, os.O_RDONLY, 0664)
 	if err != nil {
 		return
@@ -192,6 +195,20 @@ func (l *LogAnalyser) initFromResultFile(result *LogAnalysisResult) {
 	if err != nil {
 		return
 	}
+	result.clearResult()
+}
+
+func (r *LogAnalysisResult) clearResult() {
+	r.RequestAvgTime = 0
+	r.RequestMaxTime = 0
+	r.RequestAvgTime = 0
+	r.UpstreamConnectAvgTime = 0
+	r.UpstreamHeaderAvgTime = 0
+	r.UpstreamResponseAvgTime = 0
+	r.RequestMaxTime = 0
+	r.UpstreamConnectMaxTime = 0
+	r.UpstreamHeaderMaxTime = 0
+	r.UpstreamResponseMaxTime = 0
 }
 
 func (r *LogAnalysisResult) getMax(time1, time2 float64) float64 {
